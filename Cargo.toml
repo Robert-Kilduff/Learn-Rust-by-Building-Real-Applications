@@ -3,4 +3,5 @@ members = [
     "server",
     "mars_calc",
     "memory_management",
+    "single_thread_server",
 ]

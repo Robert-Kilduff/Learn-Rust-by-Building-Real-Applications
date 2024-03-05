@@ -1,0 +1,9 @@
+{
+    "rust-analyzer.linkedProjects": [
+        ".\\single_thread_server\\Cargo.toml",
+        ".\\single_thread_server\\Cargo.toml",
+        ".\\single_thread_server\\Cargo.toml",
+        ".\\single_thread_server\\Cargo.toml",
+        ".\\single_thread_server\\Cargo.toml"
+    ]
+}
