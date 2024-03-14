@@ -1,8 +1,12 @@
 use std::net::TcpListener;
-use crate::http::Request;
+use std::net::TcpStream;
+use crate::http::request;
 use std::convert::TryFrom;
 use std::convert::TryInto;
-use std::io::Read;
+use std::io::{Write,Read};
+use crate::http::{Request, Response, StatusCode};
+
+
 pub struct Server {
     addr: String,
 
@@ -26,15 +30,34 @@ impl Server {
                     match stream.read(&mut buffer) {
                         Ok(_) => {
                             println!("Received a request: {}", String::from_utf8_lossy(&buffer)); //lossy means if anything invalid it will still pass it on, never fails.
-                            match Request::try_from(&buffer[..]) {
-                                Ok(Request) => {},
-                                Err(e) => println!("Failed to pass a request: {}", e)
-                            }  //using [] to explicitly tell the compiler byte slice containing entire array
+
+                            let response = match Request::try_from(&buffer[..]) {
+                                Ok(request) => {
+                                    dbg!(request);
+                                    Response::new(
+                                        StatusCode::NotFound, 
+                                        Some("<h1> WE DID IT </h1>".to_string()),
+                                    )
+
+                                }
+                                Err(e) => {
+                                    println!("Failed to pass a request: {}", e);
+                                    Response::new(StatusCode::BadRequest, None)
+                                }
+                            };
+                            
+                            if let Err(e) = response.send(&mut stream) {
+                                println!("failed to send response {}", e);
+                            } //using [] to explicitly tell the compiler byte slice containing entire array
                         },
-                        Err(e) => println!("Failed to read from connection {}", e),
-                    } //read the bytes from the socket and allocate them to the buffer.
+                        Err(e) => {
+                            println!("Failed to read from connection {}", e);
+                        }
+                    }; //read the bytes from the socket and allocate them to the buffer.
                 },
-                Err(e) => println!("Failed to establish a connection {}", e),
+                Err(e) => {
+                    println!("Failed to establish a connection {}", e);
+                }
 
             }
         }
